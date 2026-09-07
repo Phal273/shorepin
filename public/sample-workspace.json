@@ -1,0 +1,24 @@
+{
+  "files": [
+    {
+      "path": "fixtures/sample-repo/src/compat.ts",
+      "content": "// @ts-nocheck leftover from the port. Remove before the next release.\n\nexport function legacyId(row: { id?: string }) {\n  // @ts-ignore historic field name on the warehouse dump\n  return row.user_id as unknown as string;\n}\n\nexport function coerceFlag(value: unknown) {\n  // @ts-expect-error flag bag is still a loose record\n  return value.enabled;\n}\n"
+    },
+    {
+      "path": "fixtures/sample-repo/src/queue.ts",
+      "content": "type Job = { id: string; payload: unknown };\n\nexport function enqueue(job: Job) {\n  // HACK: drop retries while the broker is rate limited\n  // FIXME: pin a real backoff once quota lands\n  const body = job as any;\n  return fetch(\"/internal/queue\", {\n    method: \"POST\",\n    body: JSON.stringify(body), // nosemgrep\n  });\n}\n"
+    },
+    {
+      "path": "fixtures/sample-repo/src/session.test.ts",
+      "content": "import { describe, it, test, expect } from \"vitest\";\nimport { readSession } from \"./session\";\n\ndescribe.skip(\"session cookie rotation\", () => {\n  it(\"rotates on privilege change\", () => {\n    expect(true).toBe(true);\n  });\n});\n\ndescribe(\"readSession\", () => {\n  it.skip(\"rejects forged payloads\", () => {\n    expect(readSession(\"{}\")).toBeTruthy();\n  });\n\n  test.skip(\"handles empty cookies\", () => {\n    expect(readSession(\"\")).toBeNull();\n  });\n\n  xit(\"covers the expired-token path\", () => {\n    expect(true).toBe(false);\n  });\n});\n\nxdescribe(\"warehouse backfill\", () => {\n  it(\"is not ready\", () => {\n    expect(true).toBe(true);\n  });\n});\n"
+    },
+    {
+      "path": "fixtures/sample-repo/src/session.ts",
+      "content": "import { cookies } from \"./cookies\";\n\n// eslint-disable-next-line @typescript-eslint/no-explicit-any\nexport function readSession(raw: string) {\n  const parsed = JSON.parse(raw) as any;\n  return parsed;\n}\n\nexport function writeSession(value: unknown) {\n  // eslint-disable-line no-console -- leftover while wiring telemetry\n  console.log(\"session.write\", value);\n  return cookies().set(\"sid\", String(value));\n}\n"
+    },
+    {
+      "path": "fixtures/sample-repo/tools/audit.py",
+      "content": "import subprocess\n\ndef run_audit(cmd):\n    # noqa: S603 leftover until we switch to the allowlisted runner\n    return subprocess.run(cmd, shell=True)  # nosec B602\n"
+    }
+  ]
+}

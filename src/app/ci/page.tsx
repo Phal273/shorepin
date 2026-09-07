@@ -5,7 +5,7 @@ import Link from "next/link";
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/page-header";
 import { CoverageBadge, KindBadge } from "@/components/status-badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { buildGateReport } from "@/lib/match";
 import { filterFindings } from "@/lib/scanner";
 import { exportPinsJson, useStore } from "@/lib/store";
@@ -55,7 +55,9 @@ export default function CiPage() {
           title="No scan to gate"
           body="Run a scan first. The check script compares a scan JSON file against pins.json and exits non-zero on unregistered or expired findings."
           action={
-            <Button render={<Link href="/scan" />}>Go to Scan</Button>
+            <Link href="/scan?sample=1" className={buttonVariants()}>
+              Go to Scan
+            </Link>
           }
         />
       ) : (
