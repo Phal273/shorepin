@@ -1,0 +1,20 @@
+name: Shorepin
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    name: Unregistered or expired pins
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Scan tracked source
+        run: node scripts/scan.mjs --dir . --out shorepin-scan.json --ignore node_modules,.next,.git,fixtures
+      - name: Fail on unregistered or expired
+        run: node scripts/check.mjs --pins pins.json --scan shorepin-scan.json

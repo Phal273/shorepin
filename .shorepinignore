@@ -1,0 +1,5 @@
+src/lib/patterns.ts
+src/lib/types.ts
+scripts/lib/detect.mjs
+scripts/scan.mjs
+scripts/check.mjs
