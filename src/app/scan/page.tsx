@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/page-header";
 import { PinDialog, type PinDraft } from "@/components/pin-dialog";
@@ -22,16 +23,19 @@ const COVERAGE_FILTERS: { id: "all" | FindingCoverage; label: string }[] = [
   { id: "expired", label: "Expired" },
 ];
 
-export default function ScanPage() {
+function ScanPageInner() {
   const { pins, settings, lastScan, saveScan, upsertPin } = useStore();
+  const searchParams = useSearchParams();
   const [paste, setPaste] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
   const [filter, setFilter] = useState<(typeof COVERAGE_FILTERS)[number]["id"]>(
     "all",
   );
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<PinDraft | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const autoStarted = useRef(false);
 
   const matched = useMemo(() => {
     if (!lastScan) return [];
@@ -49,20 +53,47 @@ export default function ScanPage() {
     expired: matched.filter((item) => item.coverage === "expired").length,
   };
 
-  function runScan(files: SourceFile[], source: ScanResult["source"]) {
-    if (files.length === 0) {
-      setError("No file contents to scan.");
-      return;
-    }
-    const findings = scanFiles(files, settings.patterns);
-    saveScan({
-      scannedAt: new Date().toISOString(),
-      source,
-      fileCount: files.length,
-      findings,
-    });
+  const runScan = useCallback(
+    (files: SourceFile[], source: ScanResult["source"]) => {
+      if (files.length === 0) {
+        setError("No file contents to scan.");
+        return;
+      }
+      const findings = scanFiles(files, settings.patterns);
+      saveScan({
+        scannedAt: new Date().toISOString(),
+        source,
+        fileCount: files.length,
+        findings,
+      });
+      setError(null);
+    },
+    [saveScan, settings.patterns],
+  );
+
+  const loadSample = useCallback(async () => {
+    setBusy(true);
     setError(null);
-  }
+    try {
+      const files = await loadSampleWorkspace();
+      runScan(files, "sample");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Sample load failed");
+    } finally {
+      setBusy(false);
+    }
+  }, [runScan]);
+
+  useEffect(() => {
+    if (autoStarted.current) return;
+    if (searchParams.get("sample") !== "1") return;
+    if (lastScan) return;
+    autoStarted.current = true;
+    const timer = window.setTimeout(() => {
+      void loadSample();
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [lastScan, loadSample, searchParams]);
 
   async function onUpload(list: FileList | null) {
     if (!list || list.length === 0) return;
@@ -117,17 +148,8 @@ pending case`}
             className="hidden"
             onChange={(event) => onUpload(event.target.files)}
           />
-          <Button
-            variant="secondary"
-            onClick={() => {
-              void loadSampleWorkspace()
-                .then((files) => runScan(files, "sample"))
-                .catch((err: unknown) =>
-                  setError(err instanceof Error ? err.message : "Sample load failed"),
-                );
-            }}
-          >
-            Load sample workspace
+          <Button variant="secondary" disabled={busy} onClick={() => void loadSample()}>
+            {busy ? "Scanning sample…" : "Load sample workspace"}
           </Button>
           <p className="text-xs leading-5 text-muted-foreground">{SAMPLE_NOTE}</p>
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
@@ -139,16 +161,8 @@ pending case`}
           title="No scan on record"
           body="Load the sample workspace to see real escapes from fixtures/sample-repo, or paste your own files. Results stay in this browser until you scan again."
           action={
-            <Button
-              onClick={() => {
-                void loadSampleWorkspace()
-                  .then((files) => runScan(files, "sample"))
-                  .catch((err: unknown) =>
-                    setError(err instanceof Error ? err.message : "Sample load failed"),
-                  );
-              }}
-            >
-              Load sample workspace
+            <Button disabled={busy} onClick={() => void loadSample()}>
+              {busy ? "Scanning sample…" : "Load sample workspace"}
             </Button>
           }
         />
@@ -259,5 +273,13 @@ pending case`}
         onSubmit={(input: PinInput, id?: string) => upsertPin(input, id)}
       />
     </div>
+  );
+}
+
+export default function ScanPage() {
+  return (
+    <Suspense fallback={<p className="text-sm text-muted-foreground">Loading scan…</p>}>
+      <ScanPageInner />
+    </Suspense>
   );
 }

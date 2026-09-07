@@ -6,7 +6,7 @@ import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/page-header";
 import { PinDialog, pinToDraft, type PinDraft } from "@/components/pin-dialog";
 import { CoverageBadge, KindBadge, PinStatusBadge } from "@/components/status-badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { daysUntil, formatShortDate } from "@/lib/dates";
 import { filterFindings } from "@/lib/scanner";
 import {
@@ -55,9 +55,9 @@ export default function DashboardPage() {
         description="Shore pins are temporary escapes with an owner and a pull date. Unregistered findings and overdue pins are the ones that fail the gate."
         actions={
           <>
-            <Button render={<Link href="/scan" />} variant="outline">
+            <Link href="/scan" className={buttonVariants({ variant: "outline" })}>
               Run a scan
-            </Button>
+            </Link>
             <Button
               onClick={() => {
                 setDraft(null);
@@ -102,7 +102,9 @@ export default function DashboardPage() {
           body="Scan a tree or register a pin. Shorepin stores this browser's pins and last scan in localStorage. There is no demo tenant and no fake company data."
           action={
             <div className="flex gap-2">
-              <Button render={<Link href="/scan" />}>Load sample workspace</Button>
+              <Link href="/scan?sample=1" className={buttonVariants()}>
+                Load sample workspace
+              </Link>
               <Button
                 variant="outline"
                 onClick={() => {
