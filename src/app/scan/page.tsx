@@ -6,7 +6,7 @@ import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/page-header";
 import { PinDialog, type PinDraft } from "@/components/pin-dialog";
 import { CoverageBadge, KindBadge } from "@/components/status-badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { filesFromFileList, parsePastedSources } from "@/lib/parse-paste";
 import { filterFindings, scanFiles, type SourceFile } from "@/lib/scanner";
@@ -148,9 +148,14 @@ pending case`}
             className="hidden"
             onChange={(event) => onUpload(event.target.files)}
           />
-          <Button variant="secondary" disabled={busy} onClick={() => void loadSample()}>
+          <button
+            type="button"
+            className={buttonVariants({ variant: "secondary" })}
+            disabled={busy}
+            onClick={() => void loadSample()}
+          >
             {busy ? "Scanning sample…" : "Load sample workspace"}
-          </Button>
+          </button>
           <p className="text-xs leading-5 text-muted-foreground">{SAMPLE_NOTE}</p>
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
         </div>
@@ -161,9 +166,14 @@ pending case`}
           title="No scan on record"
           body="Load the sample workspace to see real escapes from fixtures/sample-repo, or paste your own files. Results stay in this browser until you scan again."
           action={
-            <Button disabled={busy} onClick={() => void loadSample()}>
+            <button
+              type="button"
+              className={buttonVariants()}
+              disabled={busy}
+              onClick={() => void loadSample()}
+            >
               {busy ? "Scanning sample…" : "Load sample workspace"}
-            </Button>
+            </button>
           }
         />
       ) : (
