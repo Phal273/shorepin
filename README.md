@@ -4,6 +4,12 @@ Temporary escapes in code do not expire on their own. `eslint-disable`, `@ts-ign
 
 Named for construction shore pins. They hold the formwork. They come out before the pour sets.
 
+**Public source of truth:** [github.com/Phal273/shorepin](https://github.com/Phal273/shorepin)
+
+**Deploy target:** [https://shorepin.zoitra.com](https://shorepin.zoitra.com)
+
+This GitHub repo is the canonical tree for Cloudflare deploys going forward. Push to `main` here; do not treat the original Cursor Origin project as the deploy source.
+
 ## What it does
 
 - Scans files in the browser or via `scripts/scan.mjs`
