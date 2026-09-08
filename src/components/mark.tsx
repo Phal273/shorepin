@@ -1,6 +1,14 @@
+import Image from "next/image";
+
 export function ShorepinMark({ className }: { className?: string }) {
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img src="/icon.png" alt="" className={className} />
+    <Image
+      src="/icon.png"
+      alt=""
+      width={32}
+      height={32}
+      className={className}
+      unoptimized
+    />
   );
 }
