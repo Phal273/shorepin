@@ -40,9 +40,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         )}
       >
         <Link href="/" className="mb-6 flex items-center gap-2.5 px-2">
-          <span className="flex size-8 items-center justify-center border border-primary/40 bg-primary/10 text-primary">
-            <ShorepinMark className="size-4" />
-          </span>
+          <ShorepinMark className="size-8 rounded-sm" />
           <span className="min-w-0">
             <span className="font-display block text-[22px] leading-none">
               Shorepin
