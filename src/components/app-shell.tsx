@@ -100,7 +100,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-border px-4 py-2.5 lg:hidden">
           <div className="flex items-center gap-2">
-            <ShorepinMark className="size-4 text-primary" />
+            <ShorepinMark className="size-5 rounded-sm" />
             <span className="font-display text-lg leading-none">Shorepin</span>
           </div>
           <Button
